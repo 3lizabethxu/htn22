@@ -1,0 +1,136 @@
+Due to an accident of handling files, only the App.js file remains;this is from path "HackTheNorth2022/review-generator/client/src/App.js"
+
+import { useState } from 'react';
+import './App.css';
+
+var axios = require('axios');
+
+function App() {
+  
+  const API_URL = 'http://localhost:3001';
+
+  const [headline, setHeadline] = useState("");
+  const [fooditems, setFooditems] = useState("");
+  const [keywords, setKeywords] = useState("");
+  const [overall, setOverall] = useState("");
+  const [rating, setRating] = useState("");
+  const [result, setResult] = useState("Review Will Appear");
+
+  async function apiCall(data){
+    var data = JSON.stringify({
+      "prompt": data
+    });
+    console.log(data)
+    var apiKey = "KxHAGnb4IMyz0P1LDaEClqX9IkvqkiJuGG1VvkMi"
+    
+    var config = {
+      method: 'post',
+      url: 'https://api.cohere.ai/generate',
+      headers: { 
+        'Authorization': 'Bearer '+ apiKey, 
+        'Content-Type': 'application/json'
+      },
+      data : data
+    };
+    
+    return axios(config)
+    .then(function (response) {
+      return(response.data.text);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
+    
+  }
+
+  function generatePrompt(){
+    return (headline+" "+fooditems+" "+keywords+" "+overall+" "+rating)
+  }
+  // Update headline variable when handleChange is called
+  const handleHeadlineChange = (e) => {
+    setHeadline(e.target.value);
+  };
+
+  const handleFooditemsChange = (e) => {
+    setFooditems(e.target.value);
+  };
+
+  const handleKeywordsChange = (e) => {
+    setKeywords(e.target.value);
+  };
+
+  const handleOverallChange = (e) => {
+    setOverall(e.target.value);
+  };
+
+  const handleRatingChange = (e) => {
+    setRating(e.target.value);
+  };
+
+  // When handleSubmit is called, passes prompt to /api and then gets assigns response to data
+  async function handleSubmit (e) {
+    e.preventDefault();
+    setHeadline("");
+    setFooditems("");
+    setKeywords("");
+    setOverall("");
+    setRating("");
+    
+    await setResult(await apiCall(generatePrompt()))
+
+  };
+
+ return (
+<div className="App">
+  <header className="App-header">
+    <h1>Online Review Generator</h1>
+    <form onSubmit={handleSubmit}>
+      <label>
+         Tell me your review: 
+         <br />
+         <br />
+         <br />
+      </label>
+
+      <label>
+         Headline: 
+        <textarea name="headline-input-box" rows="4" cols="10" size="small" value={headline} onChange={handleHeadlineChange} />
+        <br />
+        <br />
+      </label>
+
+      <label>
+         Food Items: 
+        <textarea name="fooditems-input-box" rows="4" cols="10" value={fooditems} onChange={handleFooditemsChange} />
+        <br />
+        <br />
+      </label>
+
+      <label>
+         Keywords: 
+        <textarea name="keywords-input-box" rows="4" cols="10" value={keywords} onChange={handleKeywordsChange} />
+        <br /><br />
+      </label>
+
+      <label>
+         Overall Sentiment: 
+        <textarea name="overall-input-box" rows="4" cols="10" value={overall} onChange={handleOverallChange} />
+         <br /><br />
+      </label>
+
+      <label>
+         Rating: 
+        <textarea name="rating-input-box" rows="4" cols="10" value={rating} onChange={handleRatingChange} />
+      </label>
+
+      <br /><br />
+      <input type="submit" value="Submit" />
+    </form>
+    <h1>Result:</h1>
+    <h3>{result}</h3>
+  </header>
+</div>
+)
+}
+
+export default App;
